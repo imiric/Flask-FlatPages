@@ -13,6 +13,7 @@
 from __future__ import with_statement
 
 import os.path
+import re
 import itertools
 
 import yaml
@@ -57,6 +58,9 @@ def pygments_style_defs(style='default'):
 
 
 class Page(object):
+    # Used for generating the "Read More" link
+    more = re.compile('<!--.*more.*-->')
+
     def __init__(self, path, meta_yaml, body, html_renderer):
         #: Path this pages was obtained from, as in ``pages.get(path)``.
         self.path = path
@@ -79,6 +83,11 @@ class Page(object):
         ``{{ page.html|safe }}``.
         """
         return self.html
+
+    @werkzeug.cached_property
+    def intro(self):
+        intro = re.split(Page.more, self.body)[0]
+        return self.html_renderer(intro)
 
     @werkzeug.cached_property
     def meta(self):
