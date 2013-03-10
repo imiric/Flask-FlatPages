@@ -13,6 +13,7 @@
 from __future__ import with_statement
 
 import inspect
+import re
 import itertools
 import os
 
@@ -83,6 +84,10 @@ class Page(object):
 
     Main purpose to render pages content with ``html_renderer`` function.
     """
+
+    # Used for generating the "Read More" link
+    more = re.compile('<!--.*more.*-->')
+
     def __init__(self, path, meta_yaml, body, html_renderer):
         """
         Initialize Page instance.
@@ -124,6 +129,11 @@ class Page(object):
         renderer.
         """
         return self.html_renderer(self.body)
+
+    @werkzeug.cached_property
+    def intro(self):
+        intro = re.split(Page.more, self.body)[0]
+        return self.html_renderer(intro)
 
     @werkzeug.cached_property
     def meta(self):
