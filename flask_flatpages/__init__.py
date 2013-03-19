@@ -107,7 +107,7 @@ class Page(object):
 
     def __getattr__(self, name):
         """Shortcut for accessing metadata with an attribute."""
-        return self.meta[name]
+        return self.meta.get(name)
 
 
 class PageSet(list):
