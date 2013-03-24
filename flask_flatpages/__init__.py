@@ -62,6 +62,18 @@ def pygmented_markdown(text, flatpages=None):
     return markdown.markdown(text, extensions)
 
 
+def render_mako(text, context):
+    """Renders `Mako`_ templates if available.
+
+    .. _Mako: http://www.makotemplates.org/
+    """
+    try:
+        from mako.template import Template
+        return Template(text).render(**context)
+    except:
+        return text
+
+
 def pygments_style_defs(style='default'):
     """:return: the CSS definitions for the `CodeHilite`_ Markdown plugin.
 
@@ -83,7 +95,8 @@ class Page(object):
 
     Main purpose to render pages content with ``html_renderer`` function.
     """
-    def __init__(self, path, meta_yaml, body, html_renderer):
+    def __init__(self, path, meta_yaml, body, html_renderer,
+                                template_renderer, context={}):
         """
         Initialize Page instance.
 
@@ -98,6 +111,8 @@ class Page(object):
         self._meta_yaml = meta_yaml
         self.body = body
         self.html_renderer = html_renderer
+        self.template_renderer = template_renderer
+        self.context = context
 
     def __getitem__(self, name):
         """Shortcut for accessing metadata.
@@ -123,7 +138,8 @@ class Page(object):
         """The content of the page, rendered as HTML by the configured
         renderer.
         """
-        return self.html_renderer(self.body)
+        body = self.template_renderer(self.body, self.context)
+        return self.html_renderer(body)
 
     @werkzeug.cached_property
     def meta(self):
@@ -304,12 +320,18 @@ class FlatPages(object):
         content = u'\n'.join(lines)
 
         html_renderer = self.config('html_renderer')
+        template_renderer = self.config('html_renderer')
+        template_context = self.config('template_context')
 
         if not callable(html_renderer):
             html_renderer = werkzeug.import_string(html_renderer)
+        if not callable(template_renderer):
+            template_renderer = werkzeug.import_string(template_renderer)
 
         html_renderer = self._smart_html_renderer(html_renderer)
-        return Page(path, meta, content, html_renderer)
+
+        return Page(path, meta, content, html_renderer,
+                    template_renderer, template_context)
 
     def _smart_html_renderer(self, html_renderer):
         """As of 0.4 version we support passing :class:`FlatPages` instance to
