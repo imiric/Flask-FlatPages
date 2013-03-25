@@ -73,6 +73,14 @@ def render_mako(text, context):
     except:
         return text
 
+def render_string(text, context):
+    """Renders using the built-in string.Template class."""
+    try:
+        from string import Template
+        return Template(text).safe_substitute(**context)
+    except:
+        return text
+
 
 def pygments_style_defs(style='default'):
     """:return: the CSS definitions for the `CodeHilite`_ Markdown plugin.
@@ -168,6 +176,8 @@ class FlatPages(object):
         ('extension', '.html'),
         ('encoding', 'utf-8'),
         ('html_renderer', pygmented_markdown),
+        ('template_renderer', render_string),
+        ('template_context', {}),
         ('markdown_extensions', ['codehilite']),
         ('auto_reload', 'if debug'),
     )
