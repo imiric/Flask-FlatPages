@@ -153,7 +153,7 @@ class TestFlatPages(unittest.TestCase):
         self._unicode(pages)
 
     def test_other_html_renderer(self):
-        def hello_renderer(body, pages):
+        def hello_renderer(body):
             return pages.get('hello').body.upper()
 
         for renderer in (unicode.upper, 'string.upper', hello_renderer):
@@ -183,7 +183,7 @@ class TestFlatPages(unittest.TestCase):
             u'<h1>Page Header</h1>\n<h2>Paragraph Header</h2>\n<p>Text</p>'
         )
 
-        pages.app.config['FLATPAGES_MARKDOWN_EXTENSIONS'] = [
+        pages.app.config['FLATPAGES_HTML_RENDERER'].markdown_extensions = [
             'codehilite', 'headerid'
         ]
         pages.reload()
@@ -449,7 +449,7 @@ class TestPageList(unittest.TestCase):
                 created__exists=True).order_by('-created')
         self.assertEquals(
             set(p.title for p in chain),
-            set(['Three', 'Two', 'Foo > bar', 'One', u'世界']))
+            set(['Three', 'Two', 'Foo > bar', 'One']))
 
 
 if __name__ == '__main__':
