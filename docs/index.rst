@@ -74,6 +74,19 @@ are optional.
     page, and return its HTML rendering as a unicode string. Defaults to
     :func:`~.pygmented_markdown`.
 
+    .. versionchanged:: 0.5
+
+    Renderer function can take not only unicode body, but also
+    :class:`FlatPages` instance. This usable for implementing more robust
+    renderers which could depends to other installed Flask extensions, config
+    values etc.
+
+``FLATPAGES_MARKDOWN_EXTENSIONS``
+    .. versionadded:: 0.4
+
+    List of Markdown extensions to use with default HTML renderer. Defaults to
+    ``['codehilite']``.
+
 ``FLATPAGES_AUTO_RELOAD``
     Wether to reload pages at each request. See :ref:`laziness-and-caching`
     for more details.  The default is to reload in ``DEBUG`` mode only.
@@ -122,6 +135,25 @@ and in templates:
 
     <link rel="stylesheet" href="{{ url_for('pygments_css') }}">
 
+Using custom Markdown extensions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. versionadded:: 0.4
+
+By default, Flask-FlatPages renders flatpage body using `Markdown`_ with
+`Pygments`_ format. This means passing ``['codehilite']`` extensions list to
+``markdown.markdown`` function.
+
+But sometimes you need to customize things, like using another extension or
+disable default approach, this possible by passing special config.
+
+For example, using another extension::
+
+    FLATPAGES_MARKDOWN_EXTENSIONS = ['codehilite', 'headerid']
+
+Or disabling default approach::
+
+    FLATPAGES_MARKDOWN_EXTENSIONS = []
 
 .. _laziness-and-caching:
 
@@ -217,11 +249,23 @@ API
 Changelog
 ---------
 
+Version 0.5
+~~~~~~~~~~~
+
+Released on 2013-04-02
+
+* Change behavior of passing ``FLATPAGES_MARKDOWN_EXTENSIONS`` to renderer
+  function, now whole :class:`FlatPages` instance passed as second argument,
+  this helps user provide more robust renderer functions.
+
+
 Version 0.4
 ~~~~~~~~~~~
 
-Not released yet.
+Released on 2013-04-01
 
+* Add ``FLATPAGES_MARKDOWN_EXTENSIONS`` config to setup list of Markdown
+  extensions to use with default HTML renderer.
 * Fix a bug with non-ASCII filenames.
 
 

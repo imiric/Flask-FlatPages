@@ -1,6 +1,7 @@
+import os
 import re
 import sys
-import os.path
+
 from setuptools import setup, find_packages
 
 
@@ -34,6 +35,10 @@ setup(
         # is released on PyPI.
         'Markdown' if sys.version_info >= (2, 6) else 'Markdown==2.1.1',
     ],
+    tests_require=['Pygments'],
+    extras_require={
+        'tests': ['Pygments'],
+    },
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
@@ -41,7 +46,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-        'Topic :: Software Development :: Libraries :: Python Modules'
+        'Topic :: Software Development :: Libraries :: Python Modules',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
