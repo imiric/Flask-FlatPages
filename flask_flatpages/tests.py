@@ -384,7 +384,7 @@ class TestPageSet(unittest.TestCase):
         pages = FlatPages(Flask(__name__))
         asc = pages.order_by('created')
         self.assertEquals(
-            [p.path for p in asc[3:]],
+            [p.path for p in asc[4:]],
             ['order/one', 'foo', 'order/two', u'order/three'])
         desc = pages.order_by('-created')
         self.assertEquals(
@@ -404,7 +404,8 @@ class TestPageSet(unittest.TestCase):
         isnull = pages.filter(title__isnull=False)
         self.assertEquals(
             set(p.title for p in isnull),
-            set(['One', u'世界', 'Two', 'Foo > bar', 'Three']))
+            set(['One', u'世界', 'Two', 'Foo > bar', 'Three',
+                'Markdown Header ID extension']))
 
         cont1 = pages.filter(tags__contains='politics')[0]
         self.assertEquals(cont1.title, 'One')
@@ -446,10 +447,11 @@ class TestPageSet(unittest.TestCase):
 
     def test_chaining(self):
         pages = FlatPages(Flask(__name__))
-        chain = pages.filter(title__isnull=False).order_by('-created')
+        chain = pages.filter(title__isnull=False).filter(
+                created__isnull=False).order_by('-created')
         self.assertEquals(
             set(p.title for p in chain),
-            set(['Three', 'Two', 'Foo > bar', 'One', u'世界']))
+            set(['Three', 'Two', 'Foo > bar', 'One']))
 
 
 if __name__ == '__main__':
