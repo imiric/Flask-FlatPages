@@ -19,8 +19,6 @@ import unittest
 
 from contextlib import contextmanager
 
-import jinja2
-
 from flask import Flask
 from flask_flatpages import FlatPages, pygments_style_defs
 from werkzeug.exceptions import NotFound
@@ -379,7 +377,7 @@ class TestFlatPages(unittest.TestCase):
                     'order/one', 'order/two', 'order/three']))
 
 
-class TestPageSet(unittest.TestCase):
+class TestPageList(unittest.TestCase):
     def test_order_by(self):
         pages = FlatPages(Flask(__name__))
         asc = pages.order_by('created')
@@ -401,9 +399,9 @@ class TestPageSet(unittest.TestCase):
         multi = pages.filter(title='One', created=dt)[0]
         self.assertEquals(multi.title, 'One')
 
-        isnull = pages.filter(title__isnull=False)
+        exists = pages.filter(title__exists=True)
         self.assertEquals(
-            set(p.title for p in isnull),
+            set(p.title for p in exists),
             set(['One', u'世界', 'Two', 'Foo > bar', 'Three',
                 'Markdown Header ID extension']))
 
@@ -447,11 +445,11 @@ class TestPageSet(unittest.TestCase):
 
     def test_chaining(self):
         pages = FlatPages(Flask(__name__))
-        chain = pages.filter(title__isnull=False).filter(
-                created__isnull=False).order_by('-created')
+        chain = pages.filter(title__exists=True).filter(
+                created__exists=True).order_by('-created')
         self.assertEquals(
             set(p.title for p in chain),
-            set(['Three', 'Two', 'Foo > bar', 'One']))
+            set(['Three', 'Two', 'Foo > bar', 'One', u'世界']))
 
 
 if __name__ == '__main__':

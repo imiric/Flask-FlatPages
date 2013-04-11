@@ -12,7 +12,6 @@
 
 from __future__ import with_statement
 
-import os.path
 import re
 import itertools
 import datetime
@@ -23,6 +22,7 @@ import flask
 import markdown
 import yaml
 import werkzeug
+
 import filters
 
 try:
@@ -183,7 +183,7 @@ class Page(object):
         return meta
 
 
-class PageSet(list):
+class PageList(list):
     """A page container that allows to filter and order pages."""
 
     MINDATE = datetime.date(datetime.MINYEAR, 1, 1)
@@ -202,28 +202,26 @@ class PageSet(list):
         def get_meta(page):
             return page[key] if key in page.meta else self.MINDATE
 
-        return PageSet(sorted(self, reverse=rev, key=get_meta))
+        return PageList(sorted(self, reverse=rev, key=get_meta))
 
     def filter(self, negate=False, *args, **kwargs):
         """Returns pages matching the specified filters.
 
-        So far it only works on the metadata fields, not the body.
-
         The syntax follows Django's conventions, where operators are
         indicated using '__' (``meta_field_name``__``operator``=``value``).
-        >>> pages.filter(created__isnull=False)
+        >>> pages.filter(created__exists=True)
 
         Unlike Django, however, additional kwargs are joined using
         OR instead of AND.
         This would return pages where the 'created' field exists
         *OR* the title is 'Hello'.
-        >>> pages.filter(created__isnull=False, title='Hello')
+        >>> pages.filter(created__exists=True, title='Hello')
 
         If you want to AND, just chain multiple filter()s together.
-        >>> pages.filter(created__isnull=False).filter(title='Hello')
+        >>> pages.filter(created__exists=True).filter(title='Hello')
         """
         _filters = []
-        filtered = PageSet()
+        filtered = PageList()
         for field, value in kwargs.iteritems():
             try:
                 field_name, condition = field.split('__', 1)
@@ -328,18 +326,6 @@ class FlatPages(object):
             flask.abort(404)
         return page
 
-    def order_by(self, key):
-        #TODO: Implement caching
-        return PageSet(self._pages.itervalues()).order_by(key)
-
-    def filter(self, *args, **kwargs):
-        #TODO: Implement caching
-        return PageSet(self._pages.itervalues()).filter(*args, **kwargs)
-
-    def exclude(self, *args, **kwargs):
-        """A negated filter."""
-        return self.filter(negate=True, *args, **kwargs)
-
     def reload(self):
         """Forget all pages.
 
@@ -351,6 +337,18 @@ class FlatPages(object):
             del self.__dict__['_pages']
         except KeyError:
             pass
+
+    def order_by(self, key):
+        #TODO: Implement caching
+        return PageList(self._pages.itervalues()).order_by(key)
+
+    def filter(self, *args, **kwargs):
+        #TODO: Implement caching
+        return PageList(self._pages.itervalues()).filter(*args, **kwargs)
+
+    def exclude(self, *args, **kwargs):
+        """A negated filter."""
+        return self.filter(negate=True, *args, **kwargs)
 
     @property
     def root(self):
