@@ -33,12 +33,11 @@ VERSION = '0.5'
 def pygmented_markdown(text, flatpages=None):
     """Render Markdown text to HTML.
 
-    Uses the `CodeHilite`_ extension only if `Pygments`_ is available. But if
-    `Pygments`_ no available removes "codehilite" from list of possible
-    extensions.
+    Uses the `CodeHilite`_ extension only if `Pygments`_ is available. If not,
+    it removes "codehilite" from the list of possible extensions.
 
-    If you need other extensions to use setup them to
-    ``FLATPAGES_MARKDOWN_EXTENSIONS`` list setting. Later whole
+    If you need other extensions define them with the
+    ``FLATPAGES_MARKDOWN_EXTENSIONS`` list setting. Later the
     :class:`FlatPages` instance would be passed to your
     ``FLATPAGES_HTML_RENDERER`` function as second argument.
 
@@ -81,7 +80,7 @@ def pygments_style_defs(style='default'):
 class Page(object):
     """Simple class to store all necessary information about flatpage.
 
-    Main purpose to render pages content with ``html_renderer`` function.
+    Main purpose is to render page content with ``html_renderer`` function.
     """
     def __init__(self, path, meta_yaml, body, html_renderer):
         """
@@ -137,14 +136,14 @@ class Page(object):
             return {}
         if not isinstance(meta, dict):
             raise ValueError(
-                "Excpected a dict in metadata for '%s', got %s" %
+                "Expected a dict in metadata for '%s', got %s" %
                 (self.path, type(meta).__name__)
             )
         return meta
 
 
 class FlatPages(object):
-    """A collections of :class:`Page` objects.
+    """A collection of :class:`Page` objects.
     """
     #: Default configuration for FlatPages extension
     default_config = (
@@ -159,7 +158,7 @@ class FlatPages(object):
     def __init__(self, app=None):
         """Initialize FlatPages extension.
 
-        :param app: your application. Can be omited if you call
+        :param app: your application. Can be omitted if you call
                     :meth:`init_app` later.
         :type app: Flask instance
         """
@@ -322,7 +321,7 @@ class FlatPages(object):
         """
         def wrapper(body):
             """Simple wrapper to inspect HTML renderer function and if it has
-            two arguments and second argument named ``extensions``, pass
+            two arguments and the second argument is named ``extensions``, pass
             ``FLATPAGES_MARKDOWN_EXTENSIONS`` as second argument to function.
             """
             try:
