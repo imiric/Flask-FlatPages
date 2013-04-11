@@ -41,6 +41,26 @@ def pygmented_markdown(text):
     return markdown.markdown(text, extensions)
 
 
+def render_mako(text, context):
+    """Renders `Mako`_ templates if available.
+
+    .. _Mako: http://www.makotemplates.org/
+    """
+    try:
+        from mako.template import Template
+        return Template(text).render(**context)
+    except:
+        return text
+
+def render_string(text, context):
+    """Renders using the built-in string.Template class."""
+    try:
+        from string import Template
+        return Template(text).safe_substitute(**context)
+    except:
+        return text
+
+
 def pygments_style_defs(style='default'):
     """:return: the CSS definitions for the `Codehilite`_ Markdown plugin.
 
@@ -61,13 +81,16 @@ class Page(object):
     # Used for generating the "Read More" link
     more = re.compile('<!--.*more.*-->')
 
-    def __init__(self, path, meta_yaml, body, html_renderer):
+    def __init__(self, path, meta_yaml, body, html_renderer,
+                                template_renderer, context={}):
         #: Path this pages was obtained from, as in ``pages.get(path)``.
         self.path = path
         #: Content of the pages.
         self.body = body
         self._meta_yaml = meta_yaml
         self.html_renderer = html_renderer
+        self.template_renderer = template_renderer
+        self.context = context
 
     def __repr__(self):
         return '<Page %r>' % self.path
@@ -76,7 +99,8 @@ class Page(object):
     def html(self):
         """The content of the page, rendered as HTML by the configured renderer.
         """
-        return self.html_renderer(self.body)
+        body = self.template_renderer(self.body, self.context)
+        return self.html_renderer(body)
 
     def __html__(self):
         """In a template, ``{{ page }}`` is equivalent to
@@ -143,6 +167,7 @@ class FlatPages(object):
         app.config.setdefault('FLATPAGES_EXTENSION', '.html')
         app.config.setdefault('FLATPAGES_ENCODING', 'utf8')
         app.config.setdefault('FLATPAGES_HTML_RENDERER', pygmented_markdown)
+        app.config.setdefault('FLATPAGES_TEMPLATE_RENDERER', render_string)
         app.config.setdefault('FLATPAGES_AUTO_RELOAD', 'if debug')
 
         self.app = app
@@ -253,6 +278,11 @@ class FlatPages(object):
         content = u'\n'.join(lines)
 
         html_renderer = self.app.config['FLATPAGES_HTML_RENDERER']
+        template_renderer = self.app.config['FLATPAGES_TEMPLATE_RENDERER']
+        global_context = self.app.config.get('FLATPAGES_TEMPLATE_CONTEXT', {})
         if not callable(html_renderer):
             html_renderer = werkzeug.import_string(html_renderer)
-        return Page(path, meta, content, html_renderer)
+        if not callable(template_renderer):
+            template_renderer = werkzeug.import_string(template_renderer)
+        return Page(path, meta, content, html_renderer, template_renderer,
+                                                            global_context)
