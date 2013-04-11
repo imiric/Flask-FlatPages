@@ -32,12 +32,13 @@ def pygmented_markdown(text):
     .. _Codehilite: http://www.freewisdom.org/projects/python-markdown/CodeHilite
     .. _Pygments: http://pygments.org/
     """
+    extensions = getattr(pygmented_markdown, 'extensions', [])
     try:
         import pygments
     except ImportError:
-        extensions = []
+        pass
     else:
-        extensions = ['codehilite']
+        extensions += ['codehilite']
     return markdown.markdown(text, extensions)
 
 
@@ -169,6 +170,8 @@ class FlatPages(object):
         app.config.setdefault('FLATPAGES_HTML_RENDERER', pygmented_markdown)
         app.config.setdefault('FLATPAGES_TEMPLATE_RENDERER', render_string)
         app.config.setdefault('FLATPAGES_AUTO_RELOAD', 'if debug')
+        app.config['FLATPAGES_HTML_RENDERER'].extensions = \
+                            app.config.get('MARKDOWN_EXTENSIONS', [])
 
         self.app = app
 
