@@ -148,6 +148,7 @@ class Page(object):
     @werkzeug.cached_property
     def intro(self):
         intro = re.split(Page.more, self.body)[0]
+        intro = self.template_renderer(intro, self.context)
         return self.html_renderer(intro)
 
     @werkzeug.cached_property
