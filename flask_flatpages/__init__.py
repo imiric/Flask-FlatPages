@@ -56,8 +56,11 @@ def render_jinja(text, context):
     .. _Jinja2: http://jinja.pocoo.org/
     """
     try:
-        from jinja2 import Template
-        return Template(text).render(**context)
+        from jinja2 import Template, FileSystemLoader
+        tmpl = Template(text)
+        # so `import`, `include` and `extends` can be used
+        tmpl.environment.loader = FileSystemLoader('.')
+        return tmpl.render(**context)
     except:
         return text
 
