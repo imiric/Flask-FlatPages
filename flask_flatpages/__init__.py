@@ -50,6 +50,16 @@ def pygmented_markdown(text):
 
     return markdown.markdown(text, extensions)
 
+def render_jinja(text, context):
+    """Renders `Jinja2`_ templates if available.
+
+    .. _Jinja2: http://jinja.pocoo.org/
+    """
+    try:
+        from jinja2 import Template
+        return Template(text).render(**context)
+    except:
+        return text
 
 def render_mako(text, context):
     """Renders `Mako`_ templates if available.
@@ -92,6 +102,7 @@ class Page(object):
 
     Main purpose to render pages content with ``html_renderer`` function.
     """
+
     # Used for generating the "Read More" link
     more = re.compile('<!--.*more.*-->')
 
@@ -420,5 +431,5 @@ class FlatPages(object):
         if not callable(template_renderer):
             template_renderer = werkzeug.import_string(template_renderer)
 
-        return Page(path, meta, content, html_renderer, template_renderer,
-                                                            template_context)
+        return Page(path, meta, content, html_renderer,
+                    template_renderer, template_context)
