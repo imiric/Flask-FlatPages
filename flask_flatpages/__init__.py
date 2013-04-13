@@ -330,7 +330,7 @@ class FlatPages(object):
         content = u'\n'.join(lines)
 
         html_renderer = self.config('html_renderer')
-        template_renderer = self.config('html_renderer')
+        template_renderer = self.config('template_renderer')
         template_context = self.config('template_context')
 
         if not callable(html_renderer):
